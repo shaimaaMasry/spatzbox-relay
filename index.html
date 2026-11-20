@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpatzBox Case Website</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: the SpatzBox company site (home, case brief) with an intranet behind it (CEO inbox, team directory, interview room). Brand = courier-jacket navy + signal orange. */
+:root{
+  --bg:#eef0f3;
+  --surface:#ffffff;
+  --ink:#141b2b;
+  --muted:#5a6478;
+  --line:#d5dae3;
+  --forest:#1d2a44;      /* brand navy */
+  --forest-ink:#ffffff;
+  --sparrow:#e8692c;     /* signal orange */
+  --soft:#e2e7ef;
+  --bubble:#f2f4f7;
+  --warn:#c0392b;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e131d; --surface:#161d2b; --ink:#e7ebf2; --muted:#9aa4b8; --line:#2a3447;
+    --forest:#8fb0e6; --forest-ink:#0e131d; --sparrow:#f08a52; --soft:#1f2838; --bubble:#1c2433; --warn:#ef7a66;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e131d; --surface:#161d2b; --ink:#e7ebf2; --muted:#9aa4b8; --line:#2a3447;
+  --forest:#8fb0e6; --forest-ink:#0e131d; --sparrow:#f08a52; --soft:#1f2838; --bubble:#1c2433; --warn:#ef7a66;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+button:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--sparrow);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+
+/* Top bar */
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:12px 20px;background:#1d2a44;color:#fff}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:-.01em;background:none;border:none;padding:0;color:#fff}
+.brand svg{width:30px;height:30px}
+.brand em{font-style:normal;color:#f08a52}
+.bar nav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.bar nav button{background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:500;color:#fff}
+.bar nav button[aria-current="page"]{background:#fff;color:#1d2a44}
+.bar nav .intra{border-color:#f08a52}
+
+main{max-width:1120px;margin:0 auto;padding:28px 20px 48px}
+.view{display:none}
+.view.active{display:block}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--sparrow);font-weight:500}
+.section{margin-top:64px}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.platform-title{font-size:clamp(32px,4.6vw,54px);letter-spacing:-.03em;margin-top:8px}
+.section-head h2{font-size:clamp(26px,3.4vw,38px);letter-spacing:-.02em;margin-top:6px}
+.section-head p{margin:8px 0 0;color:var(--muted);max-width:60ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:12px 22px;font-weight:600;border:1px solid transparent;text-decoration:none}
+.btn.primary{background:var(--sparrow);color:#fff}
+.btn.secondary{background:transparent;border-color:var(--line);color:var(--ink)}
+
+/* Home: hero */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center}
+.hero h1{font-size:clamp(40px,6.4vw,76px);letter-spacing:-.035em;line-height:.98;margin:12px 0 18px}
+.hero h1 span{color:var(--sparrow)}
+.hero .lead{font-size:19px;color:var(--muted);max-width:46ch;margin:0 0 24px}
+.hero .actions{display:flex;gap:10px;flex-wrap:wrap}
+.hero-img{position:relative}
+.hero-img img{border-radius:22px;width:100%;aspect-ratio:4/4.4;object-fit:cover}
+.hero-badge{position:absolute;left:-18px;bottom:24px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:0 14px 30px -18px rgba(0,0,0,.45)}
+.hero-badge b{display:block;font-family:var(--display);font-size:26px;line-height:1}
+.hero-badge span{font-size:13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:40px}
+.stat{background:var(--surface);padding:18px 20px}
+.stat b{display:block;font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--muted)}
+
+/* Home: services */
+.services{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.svc{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.svc img{aspect-ratio:4/3.2;object-fit:cover;width:100%}
+.svc div{padding:14px 16px 18px}
+.svc h3{font-size:20px;margin-bottom:6px}
+.svc p{margin:0;font-size:14px;color:var(--muted)}
+
+/* Vision & mission */
+.vm{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.vm .panel h3{font-size:15px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--sparrow);margin-bottom:10px}
+.vm .panel p.big{font-family:var(--display);font-size:clamp(22px,2.6vw,28px);font-weight:700;line-height:1.2;margin:0;letter-spacing:-.01em}
+.values{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.values .panel h4{margin:0 0 6px;font-family:var(--display);font-size:19px}
+.values .panel p{margin:0;color:var(--muted);font-size:15px}
+
+/* Marketplace + flow */
+.market{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative}
+.party{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;border-top:5px solid var(--forest)}
+.party h3{font-size:19px;margin-bottom:4px}
+.party .gets{font-size:14px;color:var(--muted);margin:0}
+.party .money{margin-top:10px;font-family:var(--mono);font-size:13px;background:var(--soft);border-radius:8px;padding:8px 10px}
+.hub{grid-column:1/-1;text-align:center;font-family:var(--display);font-weight:700;background:var(--forest);color:var(--forest-ink);border-radius:14px;padding:14px;font-size:18px}
+.hub small{display:block;font-family:var(--body);font-weight:400;font-size:14px;opacity:.85}
+.lane{margin-top:22px}
+.lane h3{font-size:18px;margin-bottom:10px;display:flex;gap:10px;align-items:center}
+.lane h3 .tag{font-family:var(--mono);font-size:12px;font-weight:500;background:var(--soft);border-radius:999px;padding:3px 10px;color:var(--muted)}
+.flow{display:flex;flex-wrap:wrap;align-items:center;row-gap:12px;padding-bottom:6px}
+.step{flex:none;display:flex;align-items:center}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:118px;max-width:150px;font-size:14px;font-weight:500;line-height:1.25}
+.chip small{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400;margin-top:3px}
+.chip.cust{border-left:4px solid var(--sparrow)}
+.chip.merch{border-left:4px solid #6c8cc4}
+.chip.cour{border-left:4px solid var(--forest)}
+.chip.sys{border-left:4px solid var(--muted)}
+.arrow{width:26px;height:2px;background:var(--line);position:relative;margin:0 2px;flex:none}
+.arrow::after{content:"";position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left-color:var(--line)}
+.par{display:flex;flex-direction:column;gap:8px;border:1px dashed var(--line);border-radius:14px;padding:8px}
+.par .row{display:flex;align-items:center}
+.par .label{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:12px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.exceptions{margin-top:14px;font-size:14px;color:var(--muted)}
+
+/* Timeline */
+.timeline{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.timeline::before{content:"";position:absolute;left:0;right:0;top:9px;height:2px;background:var(--line)}
+.tl{position:relative;padding-top:28px}
+.tl::before{content:"";position:absolute;top:2px;left:0;width:16px;height:16px;border-radius:50%;background:var(--surface);border:3px solid var(--forest)}
+.tl b{display:block;font-family:var(--mono);font-size:13px;color:var(--sparrow);font-weight:500}
+.tl h4{margin:4px 0;font-family:var(--display);font-size:18px}
+.tl p{margin:0;font-size:14px;color:var(--muted)}
+
+/* Leadership */
+.leaders{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.leader{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-align:left;padding:0;display:flex;flex-direction:column}
+.leader img,.leader .mono{aspect-ratio:1/1;width:100%;object-fit:cover}
+.leader .mono{display:grid;place-items:center;background:var(--forest);color:var(--forest-ink);font-family:var(--display);font-weight:800;font-size:56px}
+.leader div.t{padding:12px 14px 14px}
+.leader b{display:block;font-family:var(--display);font-size:17px}
+.leader span{font-size:13px;color:var(--muted)}
+.footer{margin-top:64px;padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* Case brief */
+.confidential{display:flex;gap:12px;align-items:center;background:#1d2a44;color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:26px;flex-wrap:wrap}
+.confidential b{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:#f08a52}
+.brief-title h1{font-size:clamp(32px,4.6vw,54px);letter-spacing:-.03em;margin:8px 0 12px}
+.brief-title p{font-size:18px;color:var(--muted);max-width:62ch;margin:0}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.kpi-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.kpi-card .k{font-size:14px;color:var(--muted)}
+.kpi-card .v{display:flex;align-items:baseline;gap:10px;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi-card .from{font-family:var(--display);font-size:22px;color:var(--muted);text-decoration:line-through;text-decoration-thickness:2px}
+.kpi-card .to{font-family:var(--display);font-size:38px;font-weight:800;color:var(--warn);letter-spacing:-.02em}
+.kpi-card .note{font-size:12px;font-family:var(--mono);color:var(--muted);margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.blame{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.blame .who{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left}
+.blame img{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none}
+.blame b{display:block;font-family:var(--display);font-size:16px}
+.blame span{display:block;font-size:12px;color:var(--sparrow);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.blame q{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tasks{counter-reset:t;display:grid;gap:12px}
+.task{display:flex;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.task::before{counter-increment:t;content:counter(t);flex:none;width:34px;height:34px;border-radius:50%;background:var(--sparrow);color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:800}
+.task h4{margin:0 0 4px;font-family:var(--display);font-size:18px}
+.task p{margin:0;font-size:15px;color:var(--muted)}
+
+/* Inbox */
+.inbox{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+.folder{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.folder h3{font-size:13px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 6px 10px}
+.mailitem{display:flex;gap:10px;padding:10px;border-radius:10px;background:var(--soft);border-left:4px solid var(--warn)}
+.mailitem .from{font-weight:600;font-size:14px}
+.mailitem .subj{font-size:13px;color:var(--muted)}
+.mail{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px 32px}
+.mailhead{display:flex;gap:14px;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:20px;flex-wrap:wrap}
+.mono-avatar{width:52px;height:52px;border-radius:50%;background:var(--sparrow);color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:20px;flex:none}
+.mailhead .meta{font-size:14px;color:var(--muted)}
+.mailhead .meta b{color:var(--ink);font-weight:600}
+.urgent{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--warn);border:1px solid var(--warn);border-radius:999px;padding:3px 10px}
+.mail h1{font-size:clamp(24px,3.4vw,34px);margin-bottom:18px;letter-spacing:-.015em}
+.mailbody{max-width:64ch}
+.mailbody p{margin:0 0 14px}
+.drop{display:flex;gap:16px;align-items:center;margin:18px 0 22px;padding:16px 18px;border-radius:12px;background:var(--soft);flex-wrap:wrap}
+.drop .num{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.drop .num.old{color:var(--muted);text-decoration:line-through;text-decoration-thickness:2px}
+.drop .num.new{color:var(--warn)}
+.drop .lbl{font-size:13px;color:var(--muted);max-width:22ch}
+.sign{margin-top:22px;font-weight:600}
+.sign span{display:block;font-weight:400;color:var(--muted);font-size:14px}
+.cta{display:inline-flex;align-items:center;gap:8px;margin-top:22px;background:var(--sparrow);color:#fff;border:none;border-radius:999px;padding:12px 22px;font-weight:600}
+
+/* Team */
+.team-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.team-tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.switch{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 8px;cursor:pointer}
+.switch input{position:absolute;opacity:0;width:1px;height:1px}
+.switch .track{width:44px;height:26px;border-radius:999px;background:var(--line);position:relative;transition:background .2s;flex:none}
+.switch .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch input:checked + .track{background:var(--sparrow)}
+.switch input:checked + .track .knob{transform:translateX(18px)}
+.switch input:focus-visible + .track{outline:3px solid var(--sparrow);outline-offset:2px}
+.switch input:disabled + .track{opacity:.5}
+.switch-text b{display:block;font-size:14px;line-height:1.2}
+.switch-text small{display:block;font-size:12px;color:var(--muted);line-height:1.2}
+.team-head h1{font-size:clamp(28px,4vw,44px);letter-spacing:-.02em}
+.team-head p{margin:6px 0 0;color:var(--muted);max-width:56ch}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-align:left;padding:0;display:flex;flex-direction:column;transition:transform .2s ease, box-shadow .2s ease}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 24px -14px rgba(0,0,0,.35)}
+.card img{aspect-ratio:1/1;object-fit:cover;width:100%}
+.card .info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.card .name{font-family:var(--display);font-weight:700;font-size:20px}
+.card .role{font-size:13px;color:var(--sparrow);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.card .quote{font-size:14px;color:var(--muted);flex:1}
+.card .left{font-family:var(--mono);font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+
+/* Interview room */
+.room{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+.profile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:76px;display:flex;flex-direction:column;gap:12px}
+.portrait{position:relative;border-radius:50%;width:220px;height:220px;margin:6px auto 4px}
+.portrait img,.portrait video{width:220px;height:220px;border-radius:50%;object-fit:cover;position:relative;z-index:1}
+.portrait::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:4px solid var(--sparrow);opacity:.25}
+.portrait.talking::before{animation:pulse 1.1s ease-in-out infinite;opacity:1}
+.portrait.talking img{animation:nod 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:.35}}
+@keyframes nod{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-2px) rotate(-.6deg)}60%{transform:translateY(1px) rotate(.5deg)}}
+.wave{display:flex;gap:4px;justify-content:center;align-items:center;height:22px}
+.wave i{display:block;width:4px;height:4px;border-radius:2px;background:var(--sparrow);opacity:.35}
+.talking-wave i{opacity:1;animation:bar .9s ease-in-out infinite}
+.talking-wave i:nth-child(2){animation-delay:.12s}.talking-wave i:nth-child(3){animation-delay:.24s}.talking-wave i:nth-child(4){animation-delay:.36s}.talking-wave i:nth-child(5){animation-delay:.48s}
+@keyframes bar{0%,100%{height:4px}50%{height:20px}}
+.profile .name{font-family:var(--display);font-weight:800;font-size:24px;text-align:center}
+.profile .role{text-align:center;color:var(--sparrow);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin-top:-8px}
+.profile .facts{font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.profile .facts p{margin:0 0 6px}
+.counter{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:13px;background:var(--soft);border-radius:10px;padding:8px 12px}
+.dots{display:flex;gap:4px}
+.dots span{width:9px;height:9px;border-radius:50%;background:var(--sparrow)}
+.dots span.used{background:var(--line)}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14px}
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;min-height:560px}
+.chat-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chat-head h2{font-size:18px}
+.chat-head .hint{font-size:13px;color:var(--muted);margin-left:auto}
+.log{flex:1;padding:18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:62vh}
+.msg{max-width:78%;padding:12px 14px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.them{background:var(--bubble);border-top-left-radius:4px;align-self:flex-start}
+.msg.me{background:var(--forest);color:var(--forest-ink);border-top-right-radius:4px;align-self:flex-end}
+.msg .who{display:block;font-size:12px;font-family:var(--mono);opacity:.7;margin-bottom:4px}
+.msg.system{align-self:center;background:transparent;color:var(--muted);font-size:13px;text-align:center;max-width:90%}
+.msg.error{align-self:center;background:transparent;color:var(--warn);font-size:14px;text-align:center}
+.typing{display:inline-flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+.compose{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line);align-items:flex-end}
+.compose textarea{flex:1;resize:none;min-height:48px;max-height:140px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;background:var(--bg);color:var(--ink)}
+.compose button{background:var(--sparrow);color:#fff;border:none;border-radius:12px;padding:12px 18px;font-weight:600;min-height:48px}
+.compose button:disabled,.compose textarea:disabled{opacity:.5;cursor:not-allowed}
+.notice{font-size:13px;color:var(--muted);padding:0 18px 12px}
+
+/* Dialog */
+.dialog{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;place-items:center;z-index:20;padding:16px}
+.dialog.open{display:grid}
+.dialog .box{background:var(--surface);border-radius:16px;padding:22px;max-width:420px;width:100%}
+.dialog h3{font-size:20px;margin-bottom:8px}
+.dialog .row{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.dialog .danger{background:var(--warn);color:#fff;border:none;border-radius:999px;padding:8px 16px;font-weight:600}
+
+@media (max-width: 980px){
+  .hero{grid-template-columns:1fr}
+  .hero-img img{aspect-ratio:16/11}
+  .hero-badge{left:12px}
+  .services{grid-template-columns:repeat(2,1fr)}
+  .leaders{grid-template-columns:repeat(3,1fr)}
+  .blame{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width: 900px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .room{grid-template-columns:1fr}
+  .profile{position:static;flex-direction:row;flex-wrap:wrap;align-items:center}
+  .portrait,.portrait img,.portrait video{width:96px;height:96px}
+  .portrait{margin:4px}
+  .profile .who-block{flex:1;min-width:150px}
+  .profile .name,.profile .role{text-align:left}
+  .profile .role{margin-top:2px}
+  .profile .facts{display:none}
+  .profile .wave{width:100%;justify-content:flex-start}
+  .counter{width:100%}
+  .inbox{grid-template-columns:1fr}
+  .folder{display:none}
+  .mail{padding:22px 18px}
+  .log{max-height:none}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .vm,.two{grid-template-columns:1fr}
+  .values{grid-template-columns:1fr}
+  .market{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .timeline{grid-template-columns:1fr 1fr}
+  .timeline::before{display:none}
+}
+@media (max-width: 520px){
+  .bar{padding:10px 12px}
+  .brand .word-intra{display:none}
+  .bar nav button{padding:5px 10px;font-size:13px}
+  .grid,.services{gap:12px}
+  .card .quote{display:none}
+  .msg{max-width:90%}
+  .leaders{grid-template-columns:repeat(2,1fr)}
+  .blame,.kpis,.timeline{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important}
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <button class="brand" data-go="home" aria-label="SpatzBox home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#f08a52"/><path d="M7 19c3-6 9-9 15-7l4-3-1 5c1 4-2 8-8 8-4 0-7-1-10-3z" fill="#1d2a44"/><circle cx="21" cy="13.5" r="1.2" fill="#f08a52"/></svg>
+    <span>Spatz<em>Box</em></span>
+  </button>
+  <nav aria-label="Sections">
+    <button id="nav-home" data-go="home">Spatzbox Website</button>
+    <button id="nav-platform" data-go="platform">Spatzbox Platform</button>
+    <button id="nav-brief" data-go="brief">Case brief</button>
+    <button id="nav-inbox" data-go="inbox" class="intra">Action Required</button>
+    <button id="nav-team" data-go="team" class="intra">Meet the team</button>
+  </nav>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section class="view" id="view-home" aria-labelledby="homeTitle">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Ulm · Neu-Ulm · since 2021</div>
+        <h1 id="homeTitle">Your city, <span>delivered.</span></h1>
+        <p class="lead">SpatzBox brings food from 180 local restaurants and groceries from 45 local stores to doors across Ulm and Neu-Ulm, carried by about 400 courier partners on bikes, e-bikes and cars.</p>
+        <div class="actions">
+          <button class="btn primary" data-go="brief">Read the case brief</button>
+          <button class="btn secondary" data-go="platform">How the platform works</button>
+        </div>
+      </div>
+      <div class="hero-img">
+        <img src="img/fleet.jpg" alt="SpatzBox couriers riding cargo bikes loaded with food and grocery boxes on a city cycle lane">
+        <div class="hero-badge"><b>30–45 min</b><span>promised for restaurant orders</span></div>
+      </div>
+    </div>
+    <div class="stats" role="list">
+      <div class="stat" role="listitem"><b>4,000</b><span>orders a day</span></div>
+      <div class="stat" role="listitem"><b>225</b><span>restaurants and stores</span></div>
+      <div class="stat" role="listitem"><b>~400</b><span>active courier partners</span></div>
+      <div class="stat" role="listitem"><b>3.2 km</b><span>average delivery distance</span></div>
+    </div>
+
+    <div class="section" id="what">
+      <div class="section-head"><div><div class="eyebrow">What we deliver</div><h2>One app for the whole neighbourhood</h2><p>Restaurant delivery since 2021, groceries from local shops since November 2025.</p></div></div>
+      <div class="services">
+        <article class="svc"><img src="img/restaurant.jpg" alt="Courier on an e-bike leaving a restaurant with an orange SpatzBox backpack"><div><h3>Restaurants</h3><p>180 partners, from Italian chain Bella Donau to Anatolia Grill and Sakura Sushi. Average order €28.</p></div></article>
+        <article class="svc"><img src="img/grocery.jpg" alt="Courier loading grocery bags onto a cargo bike outside a supermarket"><div><h3>Groceries</h3><p>Supermarkets such as FrischMarkt, with 6 stores. Staff pick and pack every order. Average order €46.</p></div></article>
+        <article class="svc"><img src="img/bakery.jpg" alt="Courier packing fresh bread into a box at a bakery"><div><h3>Bakeries</h3><p>Fresh bread and pastries from Bäckerei Sonnenkorn's 4 bakeries, mostly in the morning.</p></div></article>
+        <article class="svc"><img src="img/pharmacy.jpg" alt="Courier handing a pharmacy bag to an older woman at her front door"><div><h3>Pharmacy</h3><p>Small, urgent orders from Spatzen-Apotheke's 2 pharmacies, straight to the door.</p></div></article>
+      </div>
+    </div>
+
+    <div class="section" id="vision">
+      <div class="section-head"><div><div class="eyebrow">Vision and mission</div><h2>Why SpatzBox exists</h2></div></div>
+      <div class="vm">
+        <div class="panel"><h3>Vision</h3><p class="big">Every neighbourhood in Ulm and Neu-Ulm gets what it needs from the businesses around the corner.</p></div>
+        <div class="panel"><h3>Mission</h3><p class="big">We connect local restaurants and shops with their neighbours through fair partnerships, reliable couriers and a delivery time we keep.</p></div>
+        <div class="values">
+          <div class="panel"><h4>Local first</h4><p>Every partner is a business from Ulm or Neu-Ulm. When they grow, the city grows.</p></div>
+          <div class="panel"><h4>Keep the promise</h4><p>The time in the app is a promise to the customer, and to the partner whose food we carry.</p></div>
+          <div class="panel"><h4>Fair for all three sides</h4><p>Merchants pay only on completed orders, couriers choose their own shifts, customers pay a clear fee.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="story">
+      <div class="section-head"><div><div class="eyebrow">Our story</div><h2>From a restaurant app to the city's delivery platform</h2></div></div>
+      <div class="timeline">
+        <div class="tl"><b>March 2021</b><h4>Founded in Ulm</h4><p>Restaurant delivery only, from an office near the main station.</p></div>
+        <div class="tl"><b>2023</b><h4>Neu-Ulm joins</h4><p>Service extended across the Danube.</p></div>
+        <div class="tl"><b>November 2025</b><h4>Groceries launch</h4><p>Supermarkets, bakeries and pharmacies join the app.</p></div>
+        <div class="tl"><b>January 2026</b><h4>SpatzBox+</h4><p>Free-delivery subscription; order volume grows 25%.</p></div>
+      </div>
+    </div>
+
+    <div class="section" id="people">
+      <div class="section-head"><div><div class="eyebrow">Leadership</div><h2>The people behind SpatzBox</h2><p>85 office staff. Click a leader to interview them.</p></div></div>
+      <div class="leaders">
+        <div class="leader"><div class="mono" aria-hidden="true">LH</div><div class="t"><b>Lukas Hoffmann</b><span>Chief Executive Officer</span></div></div>
+        <button class="leader" data-go="markus"><img src="img/markus.jpg" alt="Markus Weber"><div class="t"><b>Markus Weber</b><span>Head of Operations</span></div></button>
+        <button class="leader" data-go="aylin"><img src="img/aylin.jpg" alt="Aylin Demir"><div class="t"><b>Aylin Demir</b><span>Courier Operations Lead</span></div></button>
+        <button class="leader" data-go="jonas"><img src="img/jonas.jpg" alt="Jonas Keller"><div class="t"><b>Jonas Keller</b><span>Merchant Partner Manager</span></div></button>
+        <button class="leader" data-go="sophie"><img src="img/sophie.jpg" alt="Sophie Braun"><div class="t"><b>Sophie Braun</b><span>Customer Care Lead</span></div></button>
+      </div>
+    </div>
+
+    <footer class="footer"><span>SpatzBox GmbH · Ulm</span><span>SpatzBox is a fictional company created for the workshop "From Insights to Action", Ulm University, 28 November – 3 December 2026.</span></footer>
+  </section>
+
+  <!-- PLATFORM -->
+  <section class="view" id="view-platform" aria-labelledby="platformTitle">
+    <div id="how">
+      <div class="section-head"><div><div class="eyebrow">How it works</div><h1 class="platform-title" id="platformTitle">A marketplace with three sides</h1><p>SpatzBox earns money only when an order is completed. Merchants join for free and can leave at any time.</p></div></div>
+      <div class="market">
+        <div class="party"><h3>Customers</h3><p class="gets">Order in the app and get a delivery window.</p><div class="money">Pay €1.99–3.99 delivery, or SpatzBox+ €6.99/month</div></div>
+        <div class="party"><h3>Merchants</h3><p class="gets">Receive, accept and prepare orders on a tablet.</p><div class="money">Pay 22% (restaurants) or 15% (stores) commission</div></div>
+        <div class="party"><h3>Courier partners</h3><p class="gets">Accept offers in the courier app, pick up, deliver.</p><div class="money">Earn €4.50 + €0.60/km, +€1.00 per bundled order</div></div>
+        <div class="hub">SpatzBox platform<small>Customer app · merchant tablet · picker app · courier app · dispatch · delivery time engine</small></div>
+      </div>
+
+      <div class="lane">
+        <h3>Restaurant order <span class="tag">80% of orders</span></h3>
+        <div class="flow" role="list" aria-label="Restaurant order steps">
+          <div class="step" role="listitem"><div class="chip cust">Order placed<small>Customer</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip sys">Payment confirmed<small>SpatzBox</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip merch">Order received<small>Restaurant</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip merch">Order accepted<small>Restaurant</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem">
+            <div class="par">
+              <div class="label">at the same time</div>
+              <div class="row"><div class="chip merch">Kitchen cooks → Order ready<small>Restaurant</small></div></div>
+              <div class="row"><div class="chip cour">Courier offered → assigned → arrives<small>Dispatch, courier</small></div></div>
+            </div><span class="arrow"></span>
+          </div>
+          <div class="step" role="listitem"><div class="chip cour">Order picked up<small>Courier</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip cour">Order delivered<small>Courier</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip cust">Order rated<small>Customer, optional</small></div></div>
+        </div>
+      </div>
+      <div class="lane">
+        <h3>Grocery order <span class="tag">20% of orders</span></h3>
+        <div class="flow" role="list" aria-label="Grocery order steps">
+          <div class="step" role="listitem"><div class="chip cust">Order placed<small>Customer</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip sys">Payment confirmed<small>SpatzBox</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip merch">Order accepted<small>Store</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip merch">Picking started<small>Store staff</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip cust">Item missing? Substitute offered and approved<small>Store, customer</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip merch">Order packed<small>Store staff</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip cour">Courier offered → assigned → arrives<small>Dispatch, courier</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip cour">Picked up → delivered<small>Courier</small></div><span class="arrow"></span></div>
+          <div class="step" role="listitem"><div class="chip cust">Order rated<small>Customer, optional</small></div></div>
+        </div>
+      </div>
+      <div class="legend"><span><i style="background:var(--sparrow)"></i>Customer</span><span><i style="background:#6c8cc4"></i>Merchant</span><span><i style="background:var(--forest)"></i>Courier</span><span><i style="background:var(--muted)"></i>SpatzBox</span></div>
+      <p class="exceptions">Along the way an order can be rejected by the merchant, cancelled, passed to another courier, or bundled with a second order on the same trip. Fourteen restaurants deliver with their own drivers.</p>
+    </div>
+
+  </section>
+
+  <!-- CASE BRIEF -->
+  <section class="view" id="view-brief" aria-labelledby="briefTitle">
+    <div class="confidential"><b>CONFIDENTIAL</b><span>Prepared for the consulting teams hired by the CEO. Do not share outside the project.</span></div>
+    <div class="brief-title">
+      <div class="eyebrow">Case brief · November 2026</div>
+      <h1 id="briefTitle">SpatzBox keeps breaking its delivery promise</h1>
+      <p>In one year, on-time delivery fell from 92% to 68%, while the company's target is 90%. Customers are leaving and the biggest restaurant partner is talking to a competitor. Your job: find out where the delivery process really breaks, and present a plan to the Supervisory Board on Thursday 3 December.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><div class="eyebrow">The crisis in numbers</div><h2>October 2025 compared with October 2026</h2><p>An order counts as on time if it arrives before the end of the window promised in the app.</p></div></div>
+      <div class="kpis">
+        <div class="kpi-card"><div class="k">On-time delivery rate</div><div class="v"><span class="from">92%</span><span class="to">68%</span></div><div class="note">target 90%</div></div>
+        <div class="kpi-card"><div class="k">Average delivery time</div><div class="v"><span class="from">34 min</span><span class="to">47 min</span></div><div class="note">+13 minutes</div></div>
+        <div class="kpi-card"><div class="k">Cancellation rate</div><div class="v"><span class="from">2.5%</span><span class="to">6.8%</span></div><div class="note">almost tripled</div></div>
+        <div class="kpi-card"><div class="k">Complaints per 1,000 orders</div><div class="v"><span class="from">8</span><span class="to">31</span></div><div class="note">almost four times as many</div></div>
+        <div class="kpi-card"><div class="k">App rating</div><div class="v"><span class="from">4.6</span><span class="to">3.9</span></div><div class="note">below 4.0 since September</div></div>
+        <div class="kpi-card"><div class="k">Monthly active customers</div><div class="v"><span class="from">41,000</span><span class="to">36,500</span></div><div class="note">4,500 fewer</div></div>
+      </div>
+      <p style="color:var(--muted);margin-top:14px">The internal dashboard shows only one overall weekly on-time rate. Nobody has split it by order type, merchant, time of day or courier vehicle.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><div class="eyebrow">How we got here</div><h2>Key events</h2></div></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>When</th><th>What happened</th></tr></thead>
+        <tbody>
+          <tr><td>November 2026</td><td>The CEO hires the consulting teams</td></tr>
+          <tr><td>October 2026</td><td>Bella Donau writes that it is talking to a competitor</td></tr>
+          <tr><td>September 2026</td><td>App rating falls below 4.0</td></tr>
+          <tr><td>April 2026</td><td>First formal complaint from Bella Donau</td></tr>
+          <tr><td>January 2026</td><td>SpatzBox+ launched; order volume grows 25%</td></tr>
+          <tr><td>November 2025</td><td>Grocery delivery launched with local stores</td></tr>
+          <tr><td>2023</td><td>Expansion to Neu-Ulm</td></tr>
+          <tr><td>March 2021</td><td>SpatzBox founded, restaurant delivery in Ulm</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><div class="eyebrow">Everyone has an opinion</div><h2>Who blames whom</h2><p>Each leader sees part of the truth. Nobody has proof. Click a leader to interview them.</p></div></div>
+      <div class="blame">
+        <button class="who" data-go="markus"><img src="img/markus.jpg" alt=""><div><span>Operations</span><b>Markus Weber</b><q>The restaurants are too slow.</q></div></button>
+        <button class="who" data-go="aylin"><img src="img/aylin.jpg" alt=""><div><span>Couriers</span><b>Aylin Demir</b><q>We don't have enough couriers at dinner.</q></div></button>
+        <button class="who" data-go="jonas"><img src="img/jonas.jpg" alt=""><div><span>Merchants</span><b>Jonas Keller</b><q>Couriers come at the wrong time, and the app shows the wrong stock.</q></div></button>
+        <button class="who" data-go="sophie"><img src="img/sophie.jpg" alt=""><div><span>Customer care</span><b>Sophie Braun</b><q>Groceries ruined everything.</q></div></button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><div class="eyebrow">Facts you may need</div><h2>Partners and courier fleet</h2></div></div>
+      <div class="two">
+        <div class="tablewrap"><table>
+          <thead><tr><th>Merchant</th><th>Type</th><th>Sites</th><th>Known inside SpatzBox</th></tr></thead>
+          <tbody>
+            <tr><td>Bella Donau</td><td>Italian chain</td><td>12</td><td>Biggest partner, about 9% of orders; unhappy</td></tr>
+            <tr><td>Münster Burger</td><td>Burgers</td><td>1</td><td>Popular with students; top 5 by orders</td></tr>
+            <tr><td>Sakura Sushi Ulm</td><td>Sushi</td><td>2</td><td>Long menus, large orders</td></tr>
+            <tr><td>Anatolia Grill</td><td>Turkish grill</td><td>3</td><td>Fast, reliable, loved by couriers</td></tr>
+            <tr><td>Curry Spatz</td><td>Indian</td><td>1</td><td>Uses its own drivers</td></tr>
+            <tr><td>FrischMarkt</td><td>Supermarket</td><td>6</td><td>Biggest grocery partner</td></tr>
+            <tr><td>Bäckerei Sonnenkorn</td><td>Bakery</td><td>4</td><td>Small orders, mostly mornings</td></tr>
+            <tr><td>Spatzen-Apotheke</td><td>Pharmacy</td><td>2</td><td>Small, urgent orders</td></tr>
+          </tbody>
+        </table></div>
+        <div style="display:grid;gap:16px;align-content:start">
+          <div class="tablewrap"><table>
+            <thead><tr><th>Courier vehicle</th><th>Share</th><th>Typical use</th></tr></thead>
+            <tbody>
+              <tr><td>Bike</td><td>55%</td><td>City centre, short trips</td></tr>
+              <tr><td>E-bike</td><td>30%</td><td>Longer trips, Neu-Ulm</td></tr>
+              <tr><td>Car</td><td>15%</td><td>Long distance, bad weather</td></tr>
+            </tbody>
+          </table></div>
+          <div class="panel" style="font-size:15px;color:var(--muted)">Orders: about 4,000 a day, 3,200 restaurant and 800 grocery. Peaks at lunch (12:00–14:00) and dinner (18:00–21:00), busiest on Friday and Saturday evenings. 14 restaurants deliver with their own drivers; all stores use SpatzBox couriers. Couriers choose their own shifts and can decline any order.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><div><div class="eyebrow">Your assignment today</div><h2>What your team delivers by 15:30</h2></div></div>
+      <div class="tasks">
+        <div class="task"><div><h4>Map the official process</h4><p>Draw the restaurant and the grocery process as SpatzBox describes it, from order placed to rating, and mark who does each step.</p></div></div>
+        <div class="task"><div><h4>List the pain points</h4><p>For each pain point, note who mentioned it, which step it belongs to, and how sure you are.</p></div></div>
+        <div class="task"><div><h4>Make a first guess</h4><p>"We believe the main reason for late deliveries is ___ because ___. To prove it, we would need data on ___."</p></div></div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" data-go="inbox">Read the CEO's email</button><button class="btn secondary" data-go="team">Start the interviews</button></div>
+    </div>
+  </section>
+
+  <!-- INBOX -->
+  <section class="view" id="view-inbox" aria-labelledby="mailTitle">
+    <div class="inbox">
+      <aside class="folder">
+        <h3>Inbox · 1 unread</h3>
+        <div class="mailitem"><div><div class="from">Lukas Hoffmann</div><div class="subj">Urgent: we need your help</div></div></div>
+      </aside>
+      <article class="mail">
+        <div class="mailhead">
+          <div class="mono-avatar" aria-hidden="true">LH</div>
+          <div class="meta"><div><b>Lukas Hoffmann</b>, CEO, SpatzBox GmbH</div><div>To: Consulting teams · Saturday 28 November 2026</div></div>
+          <span class="urgent">URGENT</span>
+        </div>
+        <h1 id="mailTitle">Urgent: we need your help</h1>
+        <div class="mailbody">
+          <p>Dear consulting teams,</p>
+          <p>SpatzBox has a serious problem. Every time a customer orders, our app promises a delivery time, and we keep breaking that promise.</p>
+          <div class="drop" role="group" aria-label="On-time delivery rate">
+            <div><div class="num old">92%</div><div class="lbl">on time, October 2025</div></div>
+            <div aria-hidden="true" style="font-size:28px;color:var(--muted)">→</div>
+            <div><div class="num new">68%</div><div class="lbl">on time, October 2026</div></div>
+          </div>
+          <p>One in three customers waits longer than we told them. Our ratings are falling, customers are leaving, and Bella Donau, our biggest restaurant partner, has told me they are talking to a competitor.</p>
+          <p>Everyone in my team has an opinion. Operations blames the restaurants. The couriers' team says we don't have enough couriers. Customer care says groceries ruined everything. Nobody has proof.</p>
+          <p>That is why I hired you. This afternoon you will meet my team. Listen carefully, ask good questions and find out how our delivery process really works.</p>
+          <p>On Thursday, you will present your findings and your plan to our Supervisory Board. I am counting on you.</p>
+          <div class="sign">Lukas Hoffmann<span>CEO, SpatzBox GmbH</span></div>
+        </div>
+        <button class="cta" data-go="team">Meet the team →</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="view" id="view-team" aria-labelledby="teamTitle">
+    <div class="team-head">
+      <div>
+        <h1 id="teamTitle">Meet the SpatzBox team</h1>
+        <p>Click a leader to start your interview. Each one knows part of the story. You have 8 questions per person, so plan them well.</p>
+      </div>
+      <div class="team-tools">
+        <label class="switch" id="voiceWrap" for="voiceToggle">
+          <input type="checkbox" id="voiceToggle" role="switch" checked>
+          <span class="track" aria-hidden="true"><span class="knob"></span></span>
+          <span class="switch-text"><b>Voice</b><small id="voiceNote">Leaders speak their answers aloud</small></span>
+        </label>
+        <button class="ghost" id="resetBtn">Start a new team session</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- ROOM -->
+  <section class="view" id="view-room" aria-labelledby="roomName">
+    <div class="room">
+      <aside class="profile">
+        <div class="portrait" id="portrait"><img id="roomImg" alt=""></div>
+        <div class="who-block">
+          <div class="name" id="roomName"></div>
+          <div class="role" id="roomRole"></div>
+        </div>
+        <div class="wave" id="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="counter"><span id="leftText">8 questions left</span><span class="dots" id="dots"></span></div>
+        <div class="facts" id="roomFacts"></div>
+        <button class="ghost" id="replayBtn">Hear the introduction again</button>
+        <button class="ghost" data-go="team">← Back to the team</button>
+      </aside>
+      <div class="chat">
+        <div class="chat-head">
+          <h2 id="chatTitle">Interview</h2>
+          <span class="hint">Ask one question at a time. Good follow-ups get better answers.</span>
+        </div>
+        <div class="log" id="log" aria-live="polite"></div>
+        <div class="notice" id="notice" hidden></div>
+        <form class="compose" id="compose">
+          <label for="q" style="position:absolute;left:-9999px">Your question</label>
+          <textarea id="q" rows="1" placeholder="Type your question…"></textarea>
+          <button type="submit" id="sendBtn">Ask</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+  <div class="box">
+    <h3 id="dlgTitle">Start a new team session?</h3>
+    <p>This clears all four interviews on this device and gives every leader 8 fresh questions. Do this only when a new team takes over the computer.</p>
+    <div class="row">
+      <button class="ghost" id="dlgCancel">Cancel</button>
+      <button class="danger" id="dlgOk">Clear and restart</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const MAX_Q = 8;
+const RELAY = (window.SPATZBOX_CONFIG && window.SPATZBOX_CONFIG.RELAY_URL || "").trim();
+const RELAY_READY = /^https:\/\//.test(RELAY) && !RELAY.includes("YOUR-WORKER");
+
+/* Display data only. The leaders' knowledge and hint rules live in the relay (worker.js), not in this page. */
+const LEADERS = [
+ { id:"markus", name:"Markus Weber", role:"Head of Operations", img:"img/markus.jpg", video:null,
+   voice:{gender:"male", pitch:0.9, rate:0.95},
+   quote:"“The restaurants are too slow. Our process is fine.”",
+   facts:["Reports to the CEO; Aylin and Sophie report to him.","Owns the delivery time engine and dispatch rules.","Sees the weekly on-time rate, nothing more detailed."],
+   intro:"Hi, I'm Markus, Head of Operations. A year ago, 92% of our orders arrived on time. Today it's 68%, and the CEO asks me about it every Monday. Delivery times went from 34 to 47 minutes, and my Friday evenings are pure firefighting. Honestly? Our process is fine. The restaurants just don't keep up. But go ahead, ask me anything." },
+ { id:"aylin", name:"Aylin Demir", role:"Courier Operations Lead", img:"img/aylin.jpg", video:null,
+   voice:{gender:"female", pitch:1.0, rate:1.05},
+   quote:"“We simply don't have enough couriers at dinner.”",
+   facts:["Reports to Markus; started as a courier in 2021.","Plans shifts, onboards riders, handles their complaints.","Sees riders online per hour and offers per order (daily average)."],
+   intro:"Hey, I'm Aylin. I run our couriers, and I was one myself. Before you ask: yes, we need more riders at dinner time. My couriers get blamed for every late order, but they're the ones standing in kitchens, waiting for food that isn't ready. They're partners, not employees, and they can say no. So, what do you want to know?" },
+ { id:"jonas", name:"Jonas Keller", role:"Merchant Partner Manager", img:"img/jonas.jpg", video:null,
+   voice:{gender:"male", pitch:1.1, rate:1.03},
+   quote:"“If you're here to blame the restaurants, think again.”",
+   facts:["Reports to the CEO; one of the first employees.","Onboards restaurants and stores, trains them on the tablet.","Handles Bella Donau's complaint."],
+   intro:"Hi, I'm Jonas. I look after our restaurants and stores. I know most of the owners personally. Right now Bella Donau, our biggest partner, is talking to a competitor. Restaurants tell me our couriers come at the wrong time, and stores say our app sells products they don't have. If you're here to blame the restaurants, think again. Ask away." },
+ { id:"sophie", name:"Sophie Braun", role:"Customer Care Lead", img:"img/sophie.jpg", video:null,
+   voice:{gender:"female", pitch:1.15, rate:0.98},
+   quote:"“Groceries ruined everything.”",
+   facts:["Reports to Markus; team of six in the app chat.","Gives refunds and vouchers, writes the weekly complaint summary.","Tickets aren't tagged by order type."],
+   intro:"Hi, I'm Sophie from customer care. I read every angry message first. Complaints have almost quadrupled in a year, our rating dropped to 3.9 stars, and we give out more vouchers every month. And I can tell you exactly when it started: when we launched groceries. Since then, everything's been a mess. What would you like to know?" }
+];
+
+/* ---------- State (kept in this browser only) ---------- */
+const STORE_KEY = "spatzbox-day1-v1";
+let state = { chats:{} };
+function freshChats(){ const c={}; LEADERS.forEach(l=>c[l.id]={log:[],used:0,introduced:false}); return c; }
+function load(){
+  try{ const s=JSON.parse(localStorage.getItem(STORE_KEY)||"null"); if(s&&s.chats) state=s; }catch(e){}
+  LEADERS.forEach(l=>{ if(!state.chats[l.id]) state.chats[l.id]={log:[],used:0,introduced:false}; });
+}
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+load();
+
+let current=null, busy=false;
+
+/* ---------- Voice: the browser's built-in speech ---------- */
+const synth = ("speechSynthesis" in window) ? window.speechSynthesis : null;
+let voiceOn = !!synth, voices=[], assigned={};
+const MALE = /(guy|christopher|eric|andrew|brian|davis|ryan|thomas|daniel|george|roger|steffan|tony|jason|alex\b|fred|aaron|arthur|oliver|male)/i;
+const FEMALE = /(aria|jenny|michelle|ava|emma|sonia|libby|natasha|clara|samantha|karen|serena|victoria|moira|tessa|susan|zira|hazel|female|google us english|google uk english female)/i;
+function pickVoices(){
+  if(!synth) return;
+  voices = synth.getVoices().filter(v=>/^en(-|_|$)/i.test(v.lang));
+  const score=v=>(/natural|neural|online/i.test(v.name)?10:0)+(/google/i.test(v.name)?4:0)+(/en-(us|gb)/i.test(v.lang)?2:0);
+  const sorted=[...voices].sort((a,b)=>score(b)-score(a));
+  const males=sorted.filter(v=>MALE.test(v.name) && !/female/i.test(v.name));
+  const females=sorted.filter(v=>FEMALE.test(v.name));
+  let mi=0, fi=0;
+  assigned={};
+  LEADERS.forEach(l=>{
+    const pool = l.voice.gender==="male" ? males : females;
+    const i = l.voice.gender==="male" ? mi++ : fi++;
+    assigned[l.id] = pool.length ? pool[i % pool.length] : (sorted[0]||null);
+  });
+}
+if(synth){ pickVoices(); synth.onvoiceschanged = pickVoices; }
+
+function setTalking(on){
+  $("#portrait").classList.toggle("talking",!!on);
+  $("#wave").classList.toggle("talking-wave",!!on);
+}
+let speakTimer=null, speakToken=0;
+function speak(text,l){
+  clearTimeout(speakTimer);
+  if(synth && voiceOn){
+    synth.cancel();
+    const token=++speakToken;
+    // Short chunks avoid browsers cutting off long speech.
+    const parts=(text.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g)||[text]).map(s=>s.trim()).filter(Boolean);
+    let left=parts.length;
+    parts.forEach((p,i)=>{
+      const u=new SpeechSynthesisUtterance(p);
+      const v=assigned[l.id]; if(v){ u.voice=v; u.lang=v.lang; } else u.lang="en-GB";
+      u.pitch=l.voice.pitch; u.rate=l.voice.rate;
+      if(i===0) u.onstart=()=>{ if(token===speakToken) setTalking(true); };
+      u.onend=u.onerror=()=>{ left--; if(left<=0 && token===speakToken) setTalking(false); };
+      synth.speak(u);
+    });
+    setTalking(true);
+  } else {
+    setTalking(true);
+    const ms=Math.min(9000, 1500 + text.split(/\s+/).length*120);
+    speakTimer=setTimeout(()=>setTalking(false), ms);
+  }
+}
+function stopSpeaking(){
+  clearTimeout(speakTimer); speakToken++;
+  try{ if(synth) synth.cancel(); }catch(e){}
+  const v=document.getElementById("roomVid"); if(v){ v.pause(); }
+  setTalking(false);
+}
+
+const vt=document.getElementById("voiceToggle");
+if(synth){ vt.checked=true; }
+else { vt.checked=false; vt.disabled=true; document.getElementById("voiceNote").textContent="This browser can't read answers aloud"; }
+vt.addEventListener("change",e=>{
+  voiceOn=e.target.checked;
+  document.getElementById("voiceNote").textContent= voiceOn ? "Leaders speak their answers aloud" : "Voice is off";
+  if(!voiceOn) stopSpeaking();
+});
+
+/* ---------- Routing ---------- */
+function go(view){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  ["home","platform","brief","inbox","team"].forEach(n=>$("#nav-"+n).removeAttribute("aria-current"));
+  if(view==="room"){ $("#view-room").classList.add("active"); $("#nav-team").setAttribute("aria-current","page"); }
+  else { $("#view-"+view).classList.add("active"); $("#nav-"+view).setAttribute("aria-current","page"); if(view==="team") renderGrid(); }
+  window.scrollTo(0,0);
+}
+function route(){
+  const h=(location.hash||"").replace("#","");
+  const l=LEADERS.find(x=>x.id===h);
+  if(l){ openRoom(l); return; }
+  stopSpeaking();
+  go(["platform","brief","inbox","team"].includes(h) ? h : "home");
+}
+window.addEventListener("hashchange",route);
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-go]"); if(!t) return;
+  e.preventDefault(); location.hash=t.dataset.go;
+});
+
+/* ---------- Team grid ---------- */
+function renderGrid(){
+  const g=$("#grid"); g.innerHTML="";
+  LEADERS.forEach(l=>{
+    const left=MAX_Q-state.chats[l.id].used;
+    const b=document.createElement("button");
+    b.className="card"; b.id="card-"+l.id; b.setAttribute("aria-label","Interview "+l.name+", "+l.role);
+    b.innerHTML=`<img src="${l.img}" alt="Portrait of ${l.name}"><div class="info"><div class="role">${l.role}</div><div class="name">${l.name}</div><div class="quote">${l.quote}</div><div class="left">${left===MAX_Q?"Not interviewed yet":left+" of "+MAX_Q+" questions left"}</div></div>`;
+    b.addEventListener("click",()=>{ location.hash=l.id; });
+    g.appendChild(b);
+  });
+}
+
+/* ---------- Interview room ---------- */
+function openRoom(l){
+  stopSpeaking();
+  current=l;
+  go("room");
+  const p=$("#portrait");
+  p.innerHTML = l.video ? `<video id="roomVid" src="${l.video}" playsinline poster="${l.img}"></video>` : `<img id="roomImg" src="${l.img}" alt="Portrait of ${l.name}">`;
+  $("#roomName").textContent=l.name; $("#roomRole").textContent=l.role;
+  $("#chatTitle").textContent="Interview with "+l.name.split(" ")[0];
+  $("#roomFacts").innerHTML=l.facts.map(f=>`<p>${f}</p>`).join("");
+  renderLog(); renderCounter(); refreshNotice();
+  const c=state.chats[l.id];
+  if(!c.introduced){
+    c.introduced=true; c.log.push({who:"them",text:l.intro}); save(); renderLog();
+    playIntro();
+  }
+  setTimeout(()=>{ if(!$("#q").disabled && window.innerWidth>900) $("#q").focus(); },50);
+}
+function playIntro(){
+  const l=current; if(!l) return;
+  const v=document.getElementById("roomVid");
+  if(v){ v.currentTime=0; v.play().catch(()=>{}); setTalking(true); v.onended=()=>setTalking(false); return; }
+  speak(l.intro, l);
+}
+$("#replayBtn").addEventListener("click",playIntro);
+
+function renderLog(){
+  const log=$("#log"); log.innerHTML="";
+  const c=state.chats[current.id];
+  c.log.forEach(m=>addBubble(m.who,m.text,false));
+  if(c.used>=MAX_Q) addBubble("system","You've used all 8 questions with "+current.name.split(" ")[0]+".",false);
+  log.scrollTop=log.scrollHeight;
+}
+function addBubble(who,text,scroll=true){
+  const log=$("#log"); const d=document.createElement("div");
+  d.className="msg "+who;
+  if(who==="them"||who==="me"){
+    const w=document.createElement("span"); w.className="who"; w.textContent= who==="them" ? current.name : "Your team";
+    const s=document.createElement("span"); s.textContent=text; d.append(w,s);
+  } else d.textContent=text;
+  log.appendChild(d); if(scroll) log.scrollTop=log.scrollHeight; return d;
+}
+function renderCounter(){
+  if(!current) return;
+  const used=state.chats[current.id].used, left=MAX_Q-used;
+  $("#leftText").textContent= left===1 ? "1 question left" : left+" questions left";
+  $("#dots").innerHTML=Array.from({length:MAX_Q},(_,i)=>`<span class="${i<used?"used":""}"></span>`).join("");
+  const done=left<=0;
+  $("#q").disabled=done||busy||!RELAY_READY; $("#sendBtn").disabled=done||busy||!RELAY_READY;
+  $("#q").placeholder= done ? "No questions left for this person" : "Type your question…";
+}
+function refreshNotice(){
+  const n=$("#notice"); if(!current) return;
+  if(!RELAY_READY){ n.hidden=false; n.textContent="The interviews are not connected yet. The workshop organiser needs to add the relay address in config.js."; }
+  else n.hidden=true;
+  renderCounter();
+}
+
+/* ---------- Asking (through the relay) ---------- */
+async function askRelay(l, history, question){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),60000);
+  try{
+    const r=await fetch(RELAY,{method:"POST",headers:{"Content-Type":"application/json"},signal:ctrl.signal,
+      body:JSON.stringify({leader:l.id, history, question})});
+    let data={}; try{ data=await r.json(); }catch(e){}
+    if(!r.ok){ const err=new Error(data.error||("HTTP "+r.status)); err.status=r.status; throw err; }
+    return (data.text||"").trim();
+  } finally { clearTimeout(t); }
+}
+
+$("#q").addEventListener("input",e=>{ e.target.style.height="auto"; e.target.style.height=Math.min(e.target.scrollHeight,140)+"px"; });
+$("#q").addEventListener("keydown",e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); $("#compose").requestSubmit(); } });
+$("#compose").addEventListener("submit", async e=>{
+  e.preventDefault();
+  if(busy||!RELAY_READY||!current) return;
+  const l=current, c=state.chats[l.id];
+  const q=$("#q").value.trim(); if(!q || c.used>=MAX_Q) return;
+  stopSpeaking();
+  const history=c.log.slice();
+  c.used++; c.log.push({who:"me",text:q}); save();
+  $("#q").value=""; $("#q").style.height="auto";
+  addBubble("me",q);
+  busy=true; renderCounter();
+  const bubble=addBubble("them","");
+  const span=bubble.querySelector("span:last-child");
+  span.innerHTML=`<span class="typing" aria-label="${l.name} is thinking"><i></i><i></i><i></i></span>`;
+  setTalking(true);
+  try{
+    let answer=await askRelay(l,history,q);
+    answer=answer.replace(/^\*\*?[A-Za-z ]+:\*\*?\s*/,"").replace(/^[A-Z][a-z]+:\s*/,"");
+    if(!answer) answer="Sorry, I lost my train of thought. Could you ask that again?";
+    span.textContent=answer;
+    c.log.push({who:"them",text:answer});
+    let spoken=answer;
+    if(c.used>=MAX_Q){ const bye="Sorry, I have to get back to work now. Good luck with your analysis."; c.log.push({who:"them",text:bye}); addBubble("them",bye); spoken+=" "+bye; }
+    save();
+    if(current && current.id===l.id) speak(spoken, l); else setTalking(false);
+  }catch(err){
+    setTalking(false);
+    bubble.remove();
+    c.used--; c.log.pop(); save();
+    let msg="No answer came back. Check the internet connection and try again. Your question was not counted.";
+    if(err.status===429) msg="Too many questions at once. Wait a minute, then ask again. Your question was not counted.";
+    if(err.status===403) msg="This website address is not allowed to use the interviews. The organiser needs to check ALLOWED_ORIGIN in the relay.";
+    if(err.name==="AbortError") msg="The answer took too long. Please ask again. Your question was not counted.";
+    addBubble("error",msg);
+    $("#q").value=q;
+  }finally{
+    busy=false; renderCounter();
+  }
+});
+
+/* ---------- Reset ---------- */
+$("#resetBtn").addEventListener("click",()=>$("#dialog").classList.add("open"));
+$("#dlgCancel").addEventListener("click",()=>$("#dialog").classList.remove("open"));
+$("#dlgOk").addEventListener("click",()=>{ state={chats:freshChats()}; save(); $("#dialog").classList.remove("open"); renderGrid(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("#dialog").classList.remove("open"); });
+
+route();
+</script>
+</body>
+</html>
